@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard with Left Navigation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS styles */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #151c20, #00BFFF, #1E90FF);
+            color: #333;
+        }
+
+        header {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 50px;
+            height: calc(100vh - 50px);
+        }
+
+        .navigation {
+            background-color: #0056b3;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            overflow-x: auto;
+            z-index: 2;
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+            font-size: 16px;
+            border-right: 1px solid #004080;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .navigation a:last-child {
+            border-right: none;
+        }
+
+        .navigation a:hover,
+        .navigation a.active {
+            background-color: #004080;
+        }
+
+        .content-area {
+            margin-bottom: 50px;
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .content {
+            display: none;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        canvas {
+            display: block;
+            margin: auto;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-buttons button {
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            width: 48%;
+        }
+
+        .form-buttons .save {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .form-buttons .cancel {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        .form-buttons .save:hover {
+            background-color: #004080;
+        }
+
+        .form-buttons .cancel:hover {
+            background-color: #aaa;
+        }
+
+        .profile img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+
+        .profile p {
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        Account: Loho1213
+    </header>
+
+    <div class="container">
+        <div class="content-area">
+            <!-- Profile Section -->
+            <div id="profile" class="content active">
+                <h2>ប្រវត្តិរូប</h2>
+                <div class="profile">
+                    <img src="profile-pic.jpg" alt="Profile Picture">
+                    <p>Name: Chouur Panha</p>
+                    <p>Email: john.doe@example.com</p>
+                    <p>Phone: +1 234 567 8901</p>
+                    <p>Location: Phnom Penh 10 Ung Pokun (St. 109)</p>
+                </div>
+            </div>
+
+            <!-- Bank Section -->
+            <div id="bank" class="content">
+                <h2>កុងធនាគារ</h2>
+                <p>គណនី: 500,000៛</p>
+                <p>ប្រាក់ដែលបានដាក់ចូល:900,00៛</p>
+                <p>ប្រាប់ដែលបានដកចេញ:200,00៛</p>
+            </div>
+
+            <!-- History Section -->
+            <div id="history" class="content">
+                <h2>ឆ្នោតវៀតណាម</h2>
+                <div class="calculator">
+                    <!-- Calculator content -->
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="content">
+                <h2>ការគ្រប់គ្រង</h2>
+                <form>
+                    <!-- Form Fields -->
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <input type="text" id="status" name="status" placeholder="Enter status" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="commission2D">Commission 2D (%):</label>
+                        <input type="number" id="commission2D" name="commission2D" step="0.1" min="0" max="100" placeholder="Enter 2D commission" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="commission3D">Commission 3D (%):</label>
+                        <input type="number" id="commission3D" name="commission3D" step="0.1" min="0" max="100" placeholder="Enter 3D commission" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minBet2D">Min Bet 2 Digit (riel):</label>
+                        <input type="number" id="minBet2D" name="minBet2D" min="0" placeholder="Enter min 2-digit bet" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxBet2D">Max Bet 2 Digit (riel):</label>
+                        <input type="number" id="maxBet2D" name="maxBet2D" min="0" placeholder="Enter max 2-digit bet" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minBet3D">Min Bet 3 Digit (riel):</label>
+                        <input type="number" id="minBet3D" name="minBet3D" min="0" placeholder="Enter min 3-digit bet" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxBet3D">Max Bet 3 Digit (riel):</label>
+                        <input type="number" id="maxBet3D" name="maxBet3D" min="0" placeholder="Enter max 3-digit bet" required>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="save">Save</button>
+                        <button type="button" class="cancel" onclick="clearForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Section -->
+            <div id="data" class="content">
+                <h2>ទិន្នន័យ</h2>
+                <h1>គំនូរបង្ហាញអំពីការចាក់</h1>
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navigation">
+        <a href="#" class="nav-link active" data-section="profile">ប្រវត្តិរូប</a>
+        <a href="#" class="nav-link" data-section="bank">កុងធនាគារ</a>
+        <a href="#" class="nav-link" data-section="history">ឆ្នោតវៀតណាម</a>
+        <a href="#" class="nav-link" data-section="settings">ការគ្រប់គ្រង</a>
+        <a href="#" class="nav-link" data-section="data">ទិន្នន័យ</a>
+    </nav>
+
+    <script>
+        // JavaScript remains unchanged for navigation and chart initialization
+        window.onload = function () {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា'],
+                    datasets: [{
+                        label: 'ការលក់តាមខែ',
+                        data: [12, 19, 3, 5, 2],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+                    const sectionId = this.getAttribute('data-section');
+                    document.querySelectorAll('.content').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+        };
+
+        function clearForm() {
+            const form = document.querySelector('form');
+            form.reset();
+        }
+    </script>
+</body>
+
+</html>
